@@ -8,7 +8,7 @@
 class Mesh : public Counter<Mesh>
 {
 public:
-	Mesh() {
+	Mesh(EntityId id) : Counter<Mesh>(id) {
 		glGenVertexArrays(1, &vao);
 	}
 

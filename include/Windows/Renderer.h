@@ -5,6 +5,7 @@
 #include "Singleton.h"
 #include "System.h"
 #include <glfw3.h>
+#include "ArchetypeList.h"
 
 class Renderer : public Singleton<Renderer>, public System
 {
@@ -19,7 +20,6 @@ public:
 
 private:
 	void drawTexturedObjects();
-
 	GLFWwindow* window;
 };
 

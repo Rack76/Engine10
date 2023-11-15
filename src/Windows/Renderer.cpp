@@ -3,7 +3,8 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "ArchetypeList.h"
+#include "DebugCamera.h"
+#include <iostream>
 
 void Renderer::init()
 {
@@ -18,11 +19,17 @@ void Renderer::run()
 { 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawTexturedObjects();
+
 	glfwSwapBuffers(window);
 }
 
 void Renderer::drawTexturedObjects()
 {
+	auto cameraOwner = PlayerControlledCamera::getActivePlayerControlledCameraOwner();
+	auto camera = Entity::getComponent<PlayerControlledCamera>(cameraOwner);
+
+	camera->setTranslation(camera->getTranslation() + camera->getSpeedVec());
+
 	auto archetypeIds = ArchetypeList::getArchetypesWith<Mesh, Shader, Texture>().get();
 	for (auto archetypeId : archetypeIds)
 	{	

@@ -13,23 +13,24 @@ class Archetype
 public:
 
 	template <typename T> 
-	int addComponent()
+	int addComponent(unsigned long entityType)
 	{
 		int name = addEntity();
-		entities.at(name).insert({ T::typeId(), Component::getComponent(T::typeId())});
+		entities.at(name).insert({ T::typeId(), Component::getComponent(T::typeId(), std::make_pair(entityType, name))});
 		return name;
 	}
 
-	void addComponent(int entityIndex, unsigned long componentTypeId, Component* c)
+	void addComponent(int newEntityIndex, unsigned long componentTypeId, Component* c)
 	{
-		entities.at(entityIndex).insert({componentTypeId, std::unique_ptr<Component>(c)});
+		entities.at(newEntityIndex).insert({componentTypeId, std::unique_ptr<Component>(c)});
 	}
 
-	void transferEntityComponents(int oldEntityIndex, int newEntityIndex, Archetype* destArchetype)
+	void transferEntityComponents(unsigned long newEntityType, int oldEntityIndex, int newEntityIndex, Archetype* destArchetype)
 	{
 		for (auto it = entities.at(oldEntityIndex).begin(); it != entities.at(oldEntityIndex).end(); it++)
 		{
 			auto c = it->second.get();
+			c->setEntityType(newEntityType);
 			it->second.release();
 			destArchetype->addComponent(newEntityIndex, it->first, c);
 		}
@@ -108,7 +109,7 @@ public:
 
 
 private:
-	void addComponents(int name, unsigned long entityType)
+	/*void addComponents(int name, unsigned long entityType)
 	{
 		if (entityType == 0)
 			return;
@@ -124,7 +125,7 @@ private:
 			entityType -= componentTypeId;
 			addComponents(name, entityType);
 		}
-	}
+	}*/
 
 	std::map<int, std::map<unsigned long, std::unique_ptr<Component>>> entities;
 

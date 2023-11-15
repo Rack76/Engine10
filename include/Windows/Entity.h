@@ -34,8 +34,8 @@ public:
 	static void addComponent(EntityId &id)
 	{
 		unsigned long newEntityType = id.first | T::typeId();
-		int newEntityIndex = archetypesByEntityType[newEntityType].addComponent<T>();
-		archetypesByEntityType[id.first].transferEntityComponents(id.second, newEntityIndex, &archetypesByEntityType[newEntityType]);
+		int newEntityIndex = archetypesByEntityType[newEntityType].addComponent<T>(newEntityType);
+		archetypesByEntityType[id.first].transferEntityComponents(newEntityType, id.second,newEntityIndex , &archetypesByEntityType[newEntityType]);
 		incrementEntityTypesByComponentTypeArray(newEntityType);
 		removeEntity(id);
 		id = std::make_pair(newEntityType, newEntityIndex);
@@ -59,11 +59,18 @@ public:
 		return &archetypesByEntityType.at(entityType);
 	}
 
+	static std::map<unsigned long, std::map<unsigned long, unsigned long>>& getEntityTypesByComponentType()
+	{
+		return entityTypesByComponentType;
+	}
+
+private:
+
 	static void incrementEntityTypesByComponentTypeArray(unsigned long entityType);
 	static void decrementEntityTypesByComponentTypeArray(unsigned long entityType);
-	
+
 	template <typename T>
-	static bool hasValue(std::map<T, T> &vec, T value)
+	static bool hasValue(std::map<T, T>& vec, T value)
 	{
 		for (std::pair<T, T> element : vec)
 		{
@@ -74,12 +81,6 @@ public:
 		return false;
 	}
 
-	static std::map<unsigned long, std::map<unsigned long, unsigned long>>& getEntityTypesByComponentType()
-	{
-		return entityTypesByComponentType;
-	}
-
-private:
 	static int addEntity(unsigned long entityType);
 
 	template <typename T, typename ...Types>

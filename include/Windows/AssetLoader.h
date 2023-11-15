@@ -61,6 +61,16 @@ public:
 		}
 		catch (std::exception& e)
 		{
+			std::cerr << "couldnt find " << vertexShaderPath << " " << fragmentShaderPath <<  e.what() << std::endl;
+		}
+	}
+
+	static std::map<std::pair<std::string, std::string>, GLuint> getPrograms() {
+		try {
+			return programs;
+		}
+		catch (std::exception& e)
+		{
 			std::cerr << e.what();
 		}
 	}

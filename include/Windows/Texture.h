@@ -9,6 +9,12 @@
 class Texture : public Counter<Texture>
 {
 public:
+
+	Texture(EntityId id) : Counter<Texture>(id)
+	{
+
+	}
+
 	void setTexture(std::string filepath) {
 		texture = AssetLoader::getTextureObject(filepath);
 	}

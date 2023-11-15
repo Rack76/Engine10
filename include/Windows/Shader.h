@@ -8,6 +8,12 @@
 class Shader : public Counter<Shader>
 {
 public:
+
+	Shader(EntityId id) : Counter<Shader>(id)
+	{
+
+	}
+
 	void setProgram(std::string vertexShaderPath, std::string fragmentShaderPath)
 	{
 		program = AssetLoader::getProgram(vertexShaderPath, fragmentShaderPath);

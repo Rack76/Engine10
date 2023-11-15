@@ -10,6 +10,10 @@ int main()
 	AssetLoader::loadProgram("shader/basicTexture.vert", "shader/basicTexture.frag");
 	AssetLoader::loadTexture("texture/texture1.jpg");
 
+	EntityId camera = Entity::addEntity();
+	Entity::addComponent<DebugCamera>(camera);
+	PlayerControlledCamera::setActivePlayerControlledCameraOwner(camera);
+
 	EntityId entity1 = Entity::addEntity();
 	Entity::addComponent<Mesh>(entity1);
 	auto mesh = Entity::getComponent<Mesh>(entity1);

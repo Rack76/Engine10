@@ -1,6 +1,8 @@
 #include <glew.h>
 #include "Engine.h"
 #include "Renderer.h"
+#include "Input.h"
+#include "DebugCamera.h"
 
 void Engine::init()
 {
@@ -8,12 +10,16 @@ void Engine::init()
 	window = glfwCreateWindow(900, 700, "window", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
+	Component::registerComponent<Mesh>();
+	Component::registerComponent<Shader>();
+	Component::registerComponent<Texture>();
+	Component::registerComponent<DebugCamera>();
+
 	Renderer::getInstance()->setWindow(window);
 	Renderer::getInstance()->init();
 
-	Component::registerComponent<Mesh>(); 
-	Component::registerComponent<Shader>();
-	Component::registerComponent<Texture>();
+	Input::getInstance()->setWindow(window);
+	Input::getInstance()->init();
 }
 
 void Engine::run()
@@ -32,6 +38,7 @@ void Engine::terminate()
 {
 	glfwTerminate();
 	delete Renderer::getInstance();
+	delete Input::getInstance();
 }
 
 void Engine::addRunningSystem(int order, System* system)

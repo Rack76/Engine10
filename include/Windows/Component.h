@@ -7,6 +7,10 @@
 #include <memory>
 #include <iostream>
 
+using EntityIndex = int;
+using EntityType = unsigned long;
+using EntityId = std::pair<EntityType, EntityIndex>;
+
 class Count
 {
 public:
@@ -17,34 +21,61 @@ class Component
 {
 public:
 
+	Component(EntityId _id) : id(_id)
+	{
+		
+	}
+
 	template <typename T>
 	static void registerComponent()
 	{
-		componentConstructors.insert({ T::typeId(), []() {return std::make_unique<T>(); } });
+		componentConstructors.insert({ T::typeId(), [](EntityId id) {return std::make_unique<T>(id); } });
 	}
 
-	static std::unique_ptr<Component> getComponent(unsigned long componentTypeId)
+	void setEntityType(unsigned long entityType)
+	{
+		id.first = entityType;
+	}
+
+	static std::unique_ptr<Component> getComponent(unsigned long componentTypeId, EntityId id)
 	{
 		if (componentConstructors.find(componentTypeId) == componentConstructors.end())
 		{
 			std::cerr << "component not registered !" << std::endl;
 			return nullptr;
 		}
-		return componentConstructors.at(componentTypeId)();
+		return componentConstructors.at(componentTypeId)(id);
+	}
+
+	virtual ~Component()
+	{
+		
 	}
 
 private:
-	static std::map<unsigned long, std::function<std::unique_ptr<Component>()>> componentConstructors;
+	EntityId id;
+	static std::map<unsigned long, std::function<std::unique_ptr<Component>(EntityId)>> componentConstructors;
 };
 
 template <typename T> 
 class Counter : public Component
 {
 public:
+
+	Counter(EntityId id) : Component(id)
+	{
+
+	}
+
 	static int typeId()
 	{
 		static unsigned long TypeId = pow(2, Count::count++);
 		return TypeId;
+	}
+
+	virtual ~Counter()
+	{
+
 	}
 };
 

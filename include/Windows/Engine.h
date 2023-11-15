@@ -10,6 +10,7 @@
 #include <Mesh.h>
 #include <Shader.h>
 #include <Texture.h>
+#include <DebugCamera.h>
 
 class Engine
 {
