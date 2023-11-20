@@ -2,42 +2,23 @@
 #include "DebugCamera.h"
 #include "glm/gtx/transform.hpp"
 #include "AssetLoader.h"
+#include "Entity.h"
+#include "Transform.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define RADIANS(x) ((x / 180.0f) * (float)M_PI )
 
-void DebugCamera::setOrientation(float mouseMotionX, float mouseMotionY)
-{
-	rotateCamera(mouseMotionX, mouseMotionY);
-	transform =  glm::mat4(orientation);
-	setTranslation(translation);
+void DebugCamera::setUniformTranslation()
+ {
+ auto transform = Entity::getComponent<Transform>(id);
+ glm::vec3 rotatedTranslation = -transform->translation * transform->orientation;
+ uniform = glm::transpose(uniform);
+ uniform[3] = glm::vec4(rotatedTranslation, 1.0f);
+ uniform = glm::transpose(uniform);
+ setUniform();
 }
 
-void DebugCamera::updateTranslationX(bool forward)
-{
-	if (forward)
-		speedVec = orientation[0] * speed;
-	else
-		speedVec = orientation[0] * -speed;
-}
-
-void DebugCamera::updateTranslationY(bool forward)
-{
-	if (forward)
-		speedVec = orientation[1] * speed;
-	else
-		speedVec = orientation[1] * -speed;
-}
-
-void DebugCamera::updateTranslationZ(bool forward)
-{
-	if (forward)
-		speedVec = orientation[2] * speed;
-	else
-		speedVec = orientation[2] * -speed;
-}
-
-void DebugCamera::rotateCamera(float mouseMotionX, float mouseMotionY)
+void DebugCamera::setUniformRotation(float mouseMotionX, float mouseMotionY)
 {
 	static double xAxisAngle = 0;
 	static double yAxisAngle = 0;
@@ -53,7 +34,11 @@ void DebugCamera::rotateCamera(float mouseMotionX, float mouseMotionY)
 	glm::vec3 xOrientation = glm::normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), zOrientation));
 	glm::vec3 yOrientation = glm::normalize(glm::cross(zOrientation, xOrientation));
 
-	orientation[0] = xOrientation;
-	orientation[1] = yOrientation;
-	orientation[2] = zOrientation;
+	auto transform = Entity::getComponent<Transform>(id);
+
+	transform->orientation[0] = xOrientation;
+	transform->orientation[1] = yOrientation;
+	transform->orientation[2] = zOrientation;
+	uniform = glm::mat4(transform->orientation);
+	setUniform();
 }

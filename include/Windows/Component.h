@@ -32,9 +32,14 @@ public:
 		componentConstructors.insert({ T::typeId(), [](EntityId id) {return std::make_unique<T>(id); } });
 	}
 
-	void setEntityType(unsigned long entityType)
+	virtual void setEntityId(EntityId _id)
 	{
-		id.first = entityType;
+		id = _id;
+	}
+
+	EntityId getEntityId()
+	{
+		return id;
 	}
 
 	static std::unique_ptr<Component> getComponent(unsigned long componentTypeId, EntityId id)
@@ -52,8 +57,10 @@ public:
 		
 	}
 
-private:
+protected:
 	EntityId id;
+
+private:
 	static std::map<unsigned long, std::function<std::unique_ptr<Component>(EntityId)>> componentConstructors;
 };
 
@@ -67,7 +74,7 @@ public:
 
 	}
 
-	static int typeId()
+	static unsigned long typeId()
 	{
 		static unsigned long TypeId = pow(2, Count::count++);
 		return TypeId;

@@ -5,6 +5,7 @@
 #include <map>
 #include "glm/gtc/matrix_transform.hpp"
 #include "AssetLoader.h"
+#include "Input.h"
 
 using EntityIndex = int;
 using EntityType = unsigned long;
@@ -19,7 +20,8 @@ class Camera
 {
 public:
 	
-	Camera() : perspective(glm::perspective(1.5f, 1.0f, 0.50f, 50.0f)),  transform(glm::mat4(1.0)), orientation(glm::mat3(1.0)), translation(glm::vec3(0.0f, 0.0f, 4.0f)), speedVec(glm::vec3(0.0f))
+	Camera() : perspective(glm::perspective(1.5f, (float)Input::getInstance()->getWindowWidth() / (float)Input::getInstance()->getWindowHeight(), 0.5f, 50.0f)), 
+		uniform(glm::mat4(1.0)), speedVec(glm::vec3(0.0f))
 	{
 		auto programs = AssetLoader::getPrograms();
 		for (auto program : programs)
@@ -39,47 +41,22 @@ public:
 		speedVec = glm::vec3(0.0f);
 	}
 
-	void setTransform() {
+	void setUniform() {
 		auto programs = AssetLoader::getPrograms();
 		for (auto program : programs)
 		{
 			glUseProgram(program.second);
 			GLint location = glGetUniformLocation(program.second, "cameraTransform");
-			glUniformMatrix4fv(location, 1, GL_FALSE, &transform[0][0]);
-			GLfloat* tab = new float[16];
-			glGetUniformfv(program.second, glGetUniformLocation(program.second, "perspective"), tab);
-			float value = tab[11];
-			delete[]tab;
+			glUniformMatrix4fv(location, 1, GL_FALSE, &uniform[0][0]);
 		}
-	}
-
-	virtual void setOrientation(glm::mat3 _orientation) {
-		orientation = _orientation;
-	}
-
-	virtual void setTranslation(glm::vec3 _translation) {
-		translation = _translation;
-		glm::vec3 rotatedTranslation =   -translation  * orientation;
-		transform = glm::transpose(transform);
-		transform[3] = glm::vec4(rotatedTranslation, 1.0f);
-		transform = glm::transpose(transform);
-		setTransform();
 	}
 
 	glm::vec3 getSpeedVec() {
 		return speedVec;
 	}
 
-	glm::mat3 getTransform() {
-		return transform;
-	}
-
-	glm::mat3 getOrientation() {
-		return orientation;
-	}
-
-	glm::vec3 getTranslation() {
-		return translation;
+	glm::mat3 getUniform() {
+		return uniform;
 	}
 
 private:
@@ -87,12 +64,10 @@ private:
 
 protected:
 
-	glm::mat4 transform;
+	glm::mat4 uniform;
 	glm::mat4 perspective;
-	glm::mat3 orientation;
-	glm::vec3 translation;
 	glm::vec3 speedVec;
-	float speed = 0.01f;
+	float speed = 0.03f;
 };
 
 #endif 

@@ -29,10 +29,13 @@ public:
 	{
 		for (auto it = entities.at(oldEntityIndex).begin(); it != entities.at(oldEntityIndex).end(); it++)
 		{
-			auto c = it->second.get();
-			c->setEntityType(newEntityType);
-			it->second.release();
-			destArchetype->addComponent(newEntityIndex, it->first, c);
+			if (it->second.get() != nullptr)
+			{
+				auto c = it->second.get();
+				c->setEntityId(std::make_pair(newEntityType, newEntityIndex));
+				it->second.release();
+				destArchetype->addComponent(newEntityIndex, it->first, c);
+			}
 		}
 	}
 

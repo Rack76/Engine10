@@ -13,6 +13,12 @@ public:
 	void run();
 	void terminate();
 	void setWindow(GLFWwindow* window);
+	int getWindowWidth() {
+		return windowWidth;
+	}
+	int getWindowHeight() {
+		return windowHeight;
+	}
 
 private:
 	GLFWwindow* window;

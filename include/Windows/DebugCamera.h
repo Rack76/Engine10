@@ -12,14 +12,10 @@ public:
 
 	}
    
-	void setOrientation(float mouseMotionX, float mouseMotionY);
-
-	void updateTranslationX(bool forward);
-	void updateTranslationY(bool forward);
-	void updateTranslationZ(bool forward);
+	void setUniformTranslation();
+	void setUniformRotation(float mouseMotionX, float mouseMotionY);
 
 private:
-	void rotateCamera(float mouseMotionX, float mouseMotionY);
 };
 
 #endif

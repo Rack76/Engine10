@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include "Component.h"
 #include "Camera.h"
+#include "Entity.h"
+#include "Transform.h"
 
 class PlayerControlledCamera : public Counter<PlayerControlledCamera>, public Camera
 {
@@ -14,10 +16,38 @@ public:
 		activeCameraOwner = activeCameraOwnerDef;
 	}
 
-	virtual void setOrientation(float mouseMotionX, float mouseMotionY) = 0;
-	virtual void updateTranslationX(bool forward) = 0;
-	virtual void updateTranslationY(bool forward) = 0;
-	virtual void updateTranslationZ(bool forward) = 0;
+	void updateTranslationSpeedX(bool forward)
+	{
+		auto transform = Entity::getComponent<Transform>(id);
+
+		if (forward)
+			speedVec = transform->orientation[0] * speed;
+		else
+			speedVec = transform->orientation[0] * -speed;
+	}
+
+	void updateTranslationSpeedY(bool forward)
+	{
+		auto transform = Entity::getComponent<Transform>(id);
+
+		if (forward)
+			speedVec = transform->orientation[1] * speed;
+		else
+			speedVec = transform->orientation[1] * -speed;
+	}
+
+	void updateTranslationSpeedZ(bool forward)
+	{
+		auto transform = Entity::getComponent<Transform>(id);
+
+		if (forward)
+			speedVec = transform->orientation[2] * speed;
+		else
+			speedVec = transform->orientation[2] * -speed;
+	}
+
+	virtual void setUniformRotation(float, float) = 0;
+	virtual void setUniformTranslation() = 0;
 
 	static void setActivePlayerControlledCameraOwner(EntityId &id)
 	{
@@ -30,7 +60,6 @@ public:
 	}
 
 protected:
-	virtual void rotateCamera(float mouseMotionX, float mouseMotionY) = 0;
 	static EntityId activeCameraOwnerDef;
 	static EntityId &activeCameraOwner;
 };

@@ -5,7 +5,8 @@
 #include <map>
 #include "Component.h"
 
-enum Trigger{KEY, MOUSE_MOTION};
+enum Trigger{KEY_A, KEY_D, KEY_Z, KEY_S, KEY_SPACE, KEY_LEFT_SHIFT,
+	MOUSE_MOTION};
 
 class PlayerInput : public Counter<PlayerInput>
 {
@@ -13,13 +14,20 @@ public:
 
 	PlayerInput(EntityId id) : Counter<PlayerInput>(id)
 	{
-		actions[KEY];
-		actions[MOUSE_MOTION];
+		
 	}
 
 	void addAction(int trigger, int order, std::function<void(void*)> action)
 	{
 			actions[trigger].insert({ order, action });
+	}
+
+	void runActions(int trigger, void* data)
+	{
+		for (auto action : actions.at(trigger))
+		{
+			action.second(data);
+		}
 	}
 
 private:

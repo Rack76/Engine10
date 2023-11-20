@@ -1,8 +1,11 @@
 #include "Entity.h"
+#include "Transform.h"
 
 EntityId Entity::addEntity() {
 	int entityIndex = archetypesByEntityType[0].addEntity();
-	return std::make_pair(0, entityIndex);
+	EntityId id = std::make_pair(0, entityIndex);
+	addComponent<Transform>(id);
+	return std::make_pair(id.first, id.second);
 }
 
 void Entity::removeEntity(EntityId id)

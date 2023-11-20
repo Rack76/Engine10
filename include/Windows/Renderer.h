@@ -19,6 +19,8 @@ public:
 	}
 
 private:
+	void drawDebugObjects();
+	void translatePlayerControlledCamera();
 	void drawTexturedObjects();
 	GLFWwindow* window;
 };

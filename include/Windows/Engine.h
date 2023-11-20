@@ -6,11 +6,15 @@
 #include <map>
 #include <System.h>
 #include <Renderer.h>
+#include <Action.h>
 #include <Entity.h>
 #include <Mesh.h>
 #include <Shader.h>
 #include <Texture.h>
 #include <DebugCamera.h>
+#include <StaticSphereCollider.h>
+#include <DynamicSphereCollider.h>
+#include <PlayerInput.h>
 
 class Engine
 {
