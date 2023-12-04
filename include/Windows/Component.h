@@ -80,7 +80,7 @@ public:
 		return TypeId;
 	}
 
-	virtual ~Counter()
+	virtual ~Counter<T>()
 	{
 
 	}

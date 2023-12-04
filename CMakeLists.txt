@@ -20,4 +20,6 @@ endif()
 
 add_library(a ${SOURCES} ${HEADERS})
 
+target_compile_features(a PRIVATE cxx_std_17)
+
 add_subdirectory(demo)

@@ -10,7 +10,7 @@ class Input : public Singleton<Input>, public System
 {
 public:
 	void init();
-	void run();
+	void run(float dt);
 	void terminate();
 	void setWindow(GLFWwindow* window);
 	int getWindowWidth() {

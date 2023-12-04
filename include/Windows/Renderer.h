@@ -11,7 +11,7 @@ class Renderer : public Singleton<Renderer>, public System
 {
 public:
 	void init();
-	void run();
+	void run(float dt);
 	void terminate();
 
 	void setWindow(GLFWwindow* _window) {

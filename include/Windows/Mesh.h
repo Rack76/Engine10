@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include <glew.h>
+#include <string>
 #include "Component.h"
 #include "AssetLoader.h"
 
@@ -21,6 +22,7 @@ public:
 		glEnableVertexAttribArray(0);
 
 		vertexCount = AssetLoader::getVertexCount(filepath);
+		geometry = filepath;
 	}
 
 	void setTexture(std::string filepath)
@@ -38,6 +40,7 @@ public:
 
 	GLuint vao;
 	int vertexCount;
+	std::string geometry;
 
 private:
 	GLuint positionVbo;

@@ -31,9 +31,9 @@ public:
 		auto transform = Entity::getComponent<Transform>(id);
 
 		if (forward)
-			speedVec = transform->orientation[1] * speed;
+			speedVec = glm::vec3(0.0, 1.0, 0.0) * speed;
 		else
-			speedVec = transform->orientation[1] * -speed;
+			speedVec = glm::vec3(0.0, 1.0, 0.0) * -speed;
 	}
 
 	void updateTranslationSpeedZ(bool forward)
@@ -41,9 +41,9 @@ public:
 		auto transform = Entity::getComponent<Transform>(id);
 
 		if (forward)
-			speedVec = transform->orientation[2] * speed;
+			speedVec = glm::normalize(glm::vec3(transform->orientation[2].x, 0, transform->orientation[2].z)) * speed;
 		else
-			speedVec = transform->orientation[2] * -speed;
+			speedVec = glm::normalize(glm::vec3(transform->orientation[2].x, 0, transform->orientation[2].z)) * -speed;
 	}
 
 	virtual void setUniformRotation(float, float) = 0;

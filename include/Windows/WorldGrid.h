@@ -6,8 +6,10 @@
 #include "Shader.h"
 #include "Entity.h"
 #include "AABB.h"
-#include "StaticCollider.h"
 #include "NameAllocator.h"
+#include "RigidBody.h"
+#include "Collider.h"
+#include <map>
 #include <unordered_map>
 
 namespace std {
@@ -33,6 +35,57 @@ public:
 class WorldGrid
 {
 public:
+
+	template <typename ...Types>
+	void findIntersectingCellsWith(std::map<unsigned long, unsigned long> entityTypes)
+	{
+		if (entityIndicesByComponentType.find(myOr<Types...>()) != entityIndicesByComponentType.end())
+		{
+			for (auto &entityIndex : entityIndicesByComponentType.at(myOr<Types...>()))
+			{
+				worldGrid[entityIndex.second.first.x][entityIndex.second.first.y][entityIndex.second.first.z].erase(entityIndex.second.second);
+			}
+		}
+
+		for (auto entityType : entityTypes)
+		{
+			auto entities = Entity::getEntityList(entityType.first);
+			for (auto& entity : *entities)
+			{
+				Collider* sCollider = (Collider*)entity.second.at(Collider::typeId()).get();
+				sCollider->updateCollider();
+				AABB aabb = sCollider->getAABB();
+				int xMin = floor(aabb.p1.x / cellWidth);
+				int yMin = floor(aabb.p1.y / cellHeight);
+				int zMin = floor(aabb.p1.z / cellDepth);
+
+				int xMax = ceil(aabb.p2.x / cellWidth);
+				int yMax = ceil(aabb.p2.y / cellHeight);
+				int zMax = ceil(aabb.p2.z / cellDepth);
+
+				std::unordered_map<int, std::pair<glm::vec3, int>> emptyMap;
+				if (entityIndicesByComponentType.find(myOr<Types...>()) != entityIndicesByComponentType.end())
+					entityIndicesByComponentType.at(myOr<Types...>()).swap(emptyMap);
+
+				NameAllocator nameAllocator;
+
+				for (int x = xMin; x < xMax; x++)
+				{
+					for (int y = yMin; y < yMax; y++)
+					{
+						for (int z = zMin; z < zMax; z++)
+						{
+							int a = worldGrid[x][y][z].size();
+							entityIndicesByComponentType[myOr<Types...>()].insert({ nameAllocator.getName(), std::make_pair(glm::vec3(x, y, z), worldGrid[x][y][z].size()) });
+							worldGrid[x][y][z].insert({ a, sCollider });
+						}
+					}
+				}
+
+			}
+		}
+	}
+
 
 	template <typename T>
 	void findIntersectingCellsWith()
@@ -84,36 +137,38 @@ public:
 		}
 	}
 
-	void startDebugging()
+	template <typename ...Types>
+	void updateCollisionList2()
 	{
-		for (auto itX = worldGrid.begin(); itX != worldGrid.end(); itX++)
+		std::map<int, std::pair<Collider*, Collider*>> emptyVec;
+		collisionList.swap(emptyVec);
+		if (entityIndicesByComponentType.find(myOr<Types...>()) != entityIndicesByComponentType.end())
 		{
-			for (auto itY = worldGrid.at(itX->first).begin(); itY != worldGrid.at(itX->first).end(); itY++)
+			for (auto& entityIndex : entityIndicesByComponentType.at(myOr<Types...>()))
 			{
-				for (auto itZ = worldGrid.at(itX->first).at(itY->first).begin(); itZ != worldGrid.at(itX->first).at(itY->first).end(); itZ++)
-				{
-					auto value = itY->first* cellHeight;
-					glm::vec3 center = glm::vec3(itX->first * cellWidth, value, itZ->first * cellDepth) +
-						glm::vec3(cellWidth, cellHeight, cellDepth) * 0.5f;
-
-						auto cellId = Entity::addEntity();
-						auto transform = Entity::getComponent<Transform>(cellId);
-						transform->setTranslation(center);
-						transform->setScale(glm::vec3(cellWidth, cellHeight, cellDepth) * 0.5f);
-						Entity::addComponent<Mesh>(cellId);
-						auto mesh = Entity::getComponent<Mesh>(cellId);
-						mesh->setMesh("mesh/untitled.dae");
-
-						Entity::addComponent<Shader>(cellId);
-						auto shader = Entity::getComponent<Shader>(cellId);
-						shader->setProgram("shader/basic.vert", "shader/redDebug.frag");
-				}
+				auto& colliderArray = worldGrid[entityIndex.second.first.x][entityIndex.second.first.y][entityIndex.second.first.z];
+					if (colliderArray.size() > 1)
+						for (int i = 0; i < colliderArray.size(); i++)
+						{
+							float oldDistance = std::numeric_limits<float>::max();
+							for (int a = i + 1; a < colliderArray.size(); a++)
+							{
+								float distance;
+								if(colliderArray.at(i)->testIntersection(colliderArray.at(a), distance))
+									if(distance < oldDistance)
+										collisionList.insert({ i, std::make_pair(colliderArray.at(i), colliderArray.at(a)) });
+								oldDistance = distance;
+							}
+						}
 			}
 		}
 	}
 
+
+	void startDebugging();
+
 	void updateCollisionList();
-	std::vector<std::pair<Collider*, Collider*>>& getCollisionList()
+	std::map<int, std::pair<Collider*, Collider*>>& getCollisionList()
 	{
 		return collisionList;
 	}
@@ -121,9 +176,18 @@ public:
 	void updateCollisionList2();
 
 private:
+	template <typename T, typename ...Types>
+	static unsigned long myOr()
+	{
+		if constexpr (sizeof...(Types) == 0)
+			return T::typeId();
+		else
+			return T::typeId() | myOr<Types...>();
+	}
+
 	std::vector<Collider*> colliderList;
 	std::unordered_map<unsigned long, std::unordered_map<int, std::pair<glm::vec3, int>>> entityIndicesByComponentType;
-	std::vector<std::pair<Collider*, Collider*>> collisionList;
+	std::map<int, std::pair<Collider*, Collider*>> collisionList;
 	std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, std::unordered_map<int, Collider*>>>> worldGrid;
 	float cellWidth = 2;
 	float cellHeight = 2;

@@ -12,9 +12,13 @@
 #include <Shader.h>
 #include <Texture.h>
 #include <DebugCamera.h>
-#include <StaticSphereCollider.h>
-#include <DynamicSphereCollider.h>
 #include <PlayerInput.h>
+#include <RigidBody.h>
+#include <Collider.h>
+#include <Triangle.h>
+#include <Sphere.h>
+#include <Terrain.h>
+
 
 class Engine
 {

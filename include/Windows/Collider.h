@@ -4,48 +4,81 @@
 #include "Transform.h"
 #include "Entity.h"
 #include "AABB.h"
-#include "Sphere.h"
+#include "Shape.h"
 
-class CollisionResponseBehavior;
-class SetWidthBehavior;
-class UpdateColliderBehavior;
-class TestIntersectionBehavior;
-class GetAABBBehavior;
-class StaticSphereCollider;
-class DynamicSphereCollider;
-
-class Collider
+class Collider : public Counter<Collider>
 {
 public:
-	Collider(EntityId _id);
 
-	Shape* getShape();
+	Collider(EntityId id) : Counter<Collider>(id)
+	{
 
-	void setId(EntityId _id);
+	}
 
-	virtual bool testIntersection(StaticSphereCollider* sphere) = 0;
-	virtual bool testIntersection(DynamicSphereCollider* sphere) = 0;
+	Collider(const Collider& collider) : Counter<Collider>(collider)
+	{
+		shape = collider.shape->clone();
+	}
 
-	bool testIntersection(Collider* collider);
+	template <typename T>
+	void setShape(T _shape)
+	{
+		if (shape)
+		{
+			Shape* temp = shape;
+			shape = new T(_shape);
+			shape->id = id;
+			delete temp;
+		}
+		else
+		{
+			shape = new T(_shape);
+			shape->id = id;
+		}
+	}
+
+	Shape* getShape()
+	{
+		return shape;
+	}
+
+	bool testIntersection(Collider* collider, float dt, float& firstTimeOfContact, glm::vec3& n1, glm::vec3& n2)
+	{
+		return collider->shape->testIntersection(shape, dt, firstTimeOfContact, n1, n2);
+	}
 	
-	void updateCollider();
+	void updateCollider() {
+		shape->update(id);
+	}
 
-	void setWidth(float width);
+	void setEntityId(EntityId _id)
+	{
+		id = _id;
+		shape->id = _id;
+	}
 
-	AABB getAABB();
+	void setWidth(float width)
+	{
+		shape->setWidth(width);
+	}
 
-	void collisionResponse(Collider* collider);
+	AABB getAABB() {
+		//updateCollider();
+		return shape->getAABB();
+	}
 
-	virtual void collisionResponse(StaticSphereCollider*) = 0;
-	virtual void collisionResponse(DynamicSphereCollider*) = 0;
-protected:
-	Shape* shape;
-	EntityId colliderId;
-	UpdateColliderBehavior* updateColliderBheavior;
-	TestIntersectionBehavior* testIntersectionBehavior;
-	GetAABBBehavior* getAABBBehavior;
-	SetWidthBehavior* setWidthBehavior;
-	CollisionResponseBehavior* collisionResponseBehavior;
+	void collisionResponse(Collider* collider, float dt, const float &timeOfContact, glm::vec3 n, glm::vec3 n2) {
+		collider->shape->collisionResponse(shape,dt, timeOfContact, n, n2);
+	}
+
+	~Collider()
+	{
+		if (shape)
+			delete shape;
+	}
+
+private:
+	Shape* shape = nullptr;
 };
 
 #endif

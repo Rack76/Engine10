@@ -6,6 +6,8 @@
 #include <map>
 #include <iostream>
 #include <NameAllocator.h>
+#include "glm/gtc/matrix_transform.hpp"
+#include "Geometry.h"
 
 class AssetLoader
 {
@@ -75,11 +77,22 @@ public:
 		}
 	}
 
+	static Geometry getGeometry(std::string filepath) {
+		try {
+			return geometries.at(filepath);
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "couldnt find " << filepath << e.what() << std::endl;
+		}
+	}
+
 private:
 	static std::map<std::string, GLuint> texCoordVbos;
 	static std::map<std::string, GLuint> positionVbos;
 	static std::map<std::string, int> vertexCounts;
 	static std::map<std::string, GLuint> textureObjects;
+	static std::map<std::string, Geometry> geometries;
 	static void loadShaderStage(std::string shader, GLuint shaderType);
 	static void compileShaderStage(GLuint shader);
 

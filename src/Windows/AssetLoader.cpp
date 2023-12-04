@@ -5,9 +5,11 @@
 
 void AssetLoader::loadCollada(std::string filepath)
 {
+	std::vector<glm::vec3> triangles;
+	std::vector<glm::vec3> vertices;
 	std::vector<float> meshPositions;
 	std::vector<float> texCoord;
-	Parser::loadMeshFromFile(filepath, meshPositions,texCoord);
+	Parser::loadMeshFromFile(filepath, meshPositions,texCoord, triangles, vertices);
 
 	GLuint positions;
 	glGenBuffers(1, &positions);
@@ -22,6 +24,7 @@ void AssetLoader::loadCollada(std::string filepath)
 	positionVbos.insert({ filepath, positions });
 	vertexCounts.insert({ filepath, meshPositions.size() / 3 });
 	texCoordVbos.insert({ filepath, textureCoords });
+	geometries.insert({ filepath,  Geometry{triangles, vertices} });
 }
 
 void AssetLoader::loadTexture(std::string filepath)
@@ -101,3 +104,5 @@ std::map<std::string, GLuint> AssetLoader::textureObjects = std::map<std::string
 std::map<std::pair<std::string, std::string>, GLuint> AssetLoader::programs = std::map<std::pair<std::string, std::string>, GLuint>();
 
 std::map <std::string, GLuint> AssetLoader::shaders = std::map <std::string, GLuint>();
+
+std::map<std::string, Geometry> AssetLoader::geometries = std::map<std::string, Geometry>();

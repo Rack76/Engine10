@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Input.h"
 #include "Physics.h"
+#include "Timer.h"
 
 void Engine::init()
 {
@@ -16,15 +17,16 @@ void Engine::init()
 	Component::registerComponent<Texture>();
 	Component::registerComponent<DebugCamera>();
 	Component::registerComponent<Transform>();
-	Component::registerComponent<StaticSphereCollider>();
-	Component::registerComponent<DynamicSphereCollider>();
+	Component::registerComponent<Collider>();
 	Component::registerComponent<PlayerInput>();
+	Component::registerComponent<RigidBody>();
 
 	Renderer::getInstance()->setWindow(window);
     Input::getInstance()->setWindow(window);
 
-	Engine::addRunningSystem(0, Physics::getInstance());
-	Engine::addRunningSystem(1, Renderer::getInstance());
+	Engine::addRunningSystem(0, Input::getInstance());
+	Engine::addRunningSystem(1, Physics::getInstance());
+	Engine::addRunningSystem(2, Renderer::getInstance());
 }
 
 void Engine::run()
@@ -33,13 +35,17 @@ void Engine::run()
 	Input::getInstance()->init();
 	Physics::getInstance()->init();
 
+	Timer timer;
+
 	while (!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
+		static float dt = 0.0f;
+		timer.reset();
 		for (auto runningSystem : runningSystems)
 		{
-			runningSystem.second->run();
+			runningSystem.second->run(dt);
 		}
+		dt = timer.getTime();
 	}
 }
 

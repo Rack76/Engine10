@@ -12,6 +12,7 @@ std::vector<unsigned int> castStringToUnsignedIntArray(std::string string);
 unsigned int castStringToUnsignedInt(std::string string);
 std::vector<unsigned int> filterIndices(int offset, int maxOffset, std::vector<unsigned int> indices);
 std::vector<float> sortArray(std::vector<float> unsortedArray, std::vector<unsigned int> indices, int stride);
+void loadGeometry(std::vector<glm::vec3>& geometry, std::vector<glm::vec3> vertices, std::vector<float> meshCoordinates, std::vector<float> unsortedMeshCoordinates);
 
 std::string Parser::loadFileAsString(std::string filepath)
 {
@@ -27,7 +28,7 @@ std::string Parser::loadFileAsString(std::string filepath)
 	return returnValue.c_str();
 }
 
-void Parser::loadMeshFromFile(std::string filepath, std::vector<float> &meshPositions, std::vector<float>& texCoord)
+void Parser::loadMeshFromFile(std::string filepath, std::vector<float> &meshPositions, std::vector<float>& texCoord, std::vector<glm::vec3>& triangles, std::vector<glm::vec3>& vertices)
 {
 	unsigned int maxOffset;
 	std::string maxOffsetString;
@@ -67,6 +68,7 @@ void Parser::loadMeshFromFile(std::string filepath, std::vector<float> &meshPosi
 	texCoordIndices = filterIndices(2, maxOffset, indices);
 	meshPositions = sortArray(unsortedMeshPositions, meshPositionsIndices, 3);
 	texCoord = sortArray(unsortedTexCoord, texCoordIndices, 2);
+	loadGeometry(triangles, vertices,  meshPositions, unsortedMeshPositions);
 }
 
 void ignoreLinesUntil(std::ifstream &file, std::string stringDelim)
@@ -162,4 +164,16 @@ std::vector<float> sortArray(std::vector<float> unsortedArray, std::vector<unsig
 		}
 	}
 	return sortedArray;
+}
+
+void loadGeometry(std::vector<glm::vec3>& geometry, std::vector<glm::vec3> vertices, std::vector<float> meshCoordinates, std::vector<float> unsortedMeshCoordinates)
+{
+	for (int i = 0; i < meshCoordinates.size(); i += 3)
+	{
+		geometry.push_back(glm::vec3(meshCoordinates[i], meshCoordinates[i+1], meshCoordinates[i+2]));
+	}
+	for (int i = 0; i < unsortedMeshCoordinates.size(); i += 3)
+	{
+		vertices.push_back(glm::vec3(unsortedMeshCoordinates[i], unsortedMeshCoordinates[i + 1], unsortedMeshCoordinates[i + 2]));
+	}
 }

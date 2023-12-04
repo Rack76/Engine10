@@ -21,9 +21,9 @@ void Input::init()
 	glfwSetKeyCallback(window, key_callback);
 }
 
-void Input::run()
+void Input::run(float dt)
 {
-
+	glfwPollEvents();
 }
 
 void Input::terminate()
@@ -50,81 +50,150 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	std::map<int, std::map<int, int>> sKeyStates;
-	sKeyStates[glfwGetKey(window, GLFW_KEY_W)].insert({ GLFW_KEY_W , GLFW_KEY_W });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_RIGHT)].insert({ GLFW_KEY_RIGHT , GLFW_KEY_RIGHT });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_D)].insert({ GLFW_KEY_D , GLFW_KEY_D });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_A)].insert({ GLFW_KEY_A , GLFW_KEY_A });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_S)].insert({ GLFW_KEY_S , GLFW_KEY_S });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)].insert({ GLFW_KEY_LEFT_SHIFT , GLFW_KEY_LEFT_SHIFT });
-	sKeyStates[glfwGetKey(window, GLFW_KEY_SPACE)].insert({ GLFW_KEY_SPACE , GLFW_KEY_SPACE });
-
 	PlayerControlledCamera* camera = Entity::getComponent<PlayerControlledCamera>(PlayerControlledCamera::getActivePlayerControlledCameraOwner());
 
-	static int lastKeyPress = -1;
-	//int newKeyPress = -1;
+	int translateKey = -1;
+	static int keyCount = 0;
 
-	if (sKeyStates.find(GLFW_PRESS) == sKeyStates.end())
+	switch (action)
 	{
-		camera->stopCamera();
-		lastKeyPress = -1;
-		return;
-	}
-
-	if (sKeyStates.at(GLFW_PRESS).size() == 1)
-		lastKeyPress = sKeyStates.at(GLFW_PRESS).begin()->first;
-
-	if (!camera)
-	{
-		std::cerr << "no active PlayerControlledCamera component!" << std::endl;
-		return;
-	}
-
-	switch (lastKeyPress)
-	{
-	case GLFW_KEY_W:
-		camera->updateTranslationSpeedZ(false);
+	case GLFW_PRESS:
+		keyCount++;
 		break;
-	case GLFW_KEY_S:
-		camera->updateTranslationSpeedZ(true);
-		break;
-	case GLFW_KEY_A:
-		camera->updateTranslationSpeedX(false);
-		break;
-	case GLFW_KEY_D:
-		camera->updateTranslationSpeedX(true);
-		break;
-	case GLFW_KEY_LEFT_SHIFT:
-		camera->updateTranslationSpeedY(false);
-		break;
-	case GLFW_KEY_SPACE:
-		camera->updateTranslationSpeedY(true);
+	case GLFW_RELEASE:
+		keyCount--;
 		break;
 	}
 
-	int translateKeyPress = -1;
+		switch (key)
+		{
+		case GLFW_KEY_W:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE)
+					camera->updateTranslationSpeedZ(false);
+				break;
 
-	switch (lastKeyPress)
-	{
-	case GLFW_KEY_W:
-		
-		break;
-	case GLFW_KEY_S:
-		
-		break;
-	case GLFW_KEY_A:
-		
-		break;
-	case GLFW_KEY_RIGHT:
-		translateKeyPress = KEY_D;
-		break;
-	case GLFW_KEY_LEFT_SHIFT:
-		
-		break;
-	case GLFW_KEY_SPACE:
-		
-		break;
-	}
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+					camera->updateTranslationSpeedZ(true);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_S:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE)
+					camera->updateTranslationSpeedZ(true);
+				break;
+
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+					camera->updateTranslationSpeedZ(false);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_A:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
+					camera->updateTranslationSpeedX(false);
+				break;
+
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+					camera->updateTranslationSpeedX(true);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_D:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE)
+					camera->updateTranslationSpeedX(true);
+				break;
+
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+					camera->updateTranslationSpeedX(false);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_LEFT_SHIFT:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+					camera->updateTranslationSpeedY(true);
+				break;
+
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+					camera->updateTranslationSpeedY(false);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_SPACE:
+			switch (glfwGetKey(window, key))
+			{
+			case GLFW_PRESS:
+				if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+					camera->updateTranslationSpeedY(false);
+				break;
+
+			case GLFW_RELEASE:
+				if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+					camera->updateTranslationSpeedY(true);
+				if (keyCount == 0)
+					camera->stopCamera();
+				break;
+			}
+			break;
+		case GLFW_KEY_RIGHT:
+			if (glfwGetKey(window, key) == GLFW_PRESS)
+				translateKey = KEY_RIGHT;
+			else
+				translateKey = -1;
+			break;
+		case GLFW_KEY_LEFT:
+			if (glfwGetKey(window, key) == GLFW_PRESS)
+				translateKey = KEY_LEFT;
+			else
+				translateKey = -1;
+			break;
+		case GLFW_KEY_UP:
+			if (glfwGetKey(window, key) == GLFW_PRESS)
+				translateKey = KEY_UP;
+			else
+				translateKey = -1;
+			break;
+		case GLFW_KEY_DOWN:
+			if (glfwGetKey(window, key) == GLFW_PRESS)
+				translateKey = KEY_DOWN;
+			else
+				translateKey = -1;
+			break;
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, GL_TRUE);
+			break;
+		}
+
+
+	
 
 	auto archetypeIds = ArchetypeList::getArchetypesWith<PlayerInput>().get();
 	for (auto archetypeId : archetypeIds)
@@ -136,8 +205,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 			PlayerInput* playerInput = (PlayerInput*)components.at(PlayerInput::typeId()).get();
 			Transform* transform = (Transform*)components.at(Transform::typeId()).get();
-			if(translateKeyPress != -1)
-				playerInput->runActions(translateKeyPress, (void*)transform);
+			//if(translateKeyPress != -1)
+			playerInput->runActions(translateKey, {});
 		}
 	}
 }

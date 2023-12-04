@@ -11,7 +11,7 @@ public:
 	Transform(EntityId id) : Counter<Transform>(id), orientation(glm::mat3(1.0)),
 		translation(glm::vec3(0.0f, 0.0f, 0.0f)), scale(glm::mat3(1.0))
 	{
-
+		setUniform();
 	}
 
 	void setUniform() {

@@ -3,18 +3,37 @@
 
 #include <map>
 
-using EntityIndex = int;
-using EntityType = unsigned long;
-using EntityId = std::pair<EntityType, EntityIndex>;
-
 #include "Entity.h"
 #include "Transform.h"
+#include "RigidBody.h"
 
 namespace Action
 {
-	static void translateObjectX(void* var) {
-		Transform* transform = (Transform*)var;
-		transform->setTranslation(transform->translation + glm::vec3(-0.02, 0.0, 0.0));
+	static void translateX(void*, EntityId id) {
+		RigidBody* rigidBody = Entity::getComponent<RigidBody>(id);
+		Transform* transform = Entity::getComponent<Transform>(id);
+		rigidBody->velocity = transform->orientation[0] * 0.3f;
+	}
+
+	static void translateNegativeX(void*, EntityId id) {
+		RigidBody* rigidBody = Entity::getComponent<RigidBody>(id);
+		Transform* transform = Entity::getComponent<Transform>(id);
+		rigidBody->velocity = -transform->orientation[0] * 0.3f;
+	}
+
+	static void translateY(void*, EntityId id) {
+		RigidBody* rigidBody = Entity::getComponent<RigidBody>(id);
+		rigidBody->velocity = glm::vec3(0.0, 0.3, 0.0);
+	}
+
+	static void translateNegativeY(void*, EntityId id) {
+		RigidBody* rigidBody = Entity::getComponent<RigidBody>(id);
+		rigidBody->velocity = glm::vec3(0.0, -0.3, 0.0);
+	}
+
+	static void stopObject(void*, EntityId id) {
+		RigidBody* rigidBody = Entity::getComponent<RigidBody>(id);
+		rigidBody->velocity = glm::vec3(0.0, 0.0, 0.0);
 	}
 }
 
